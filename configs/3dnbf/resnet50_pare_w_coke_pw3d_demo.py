@@ -1,5 +1,4 @@
 _base_ = ['../_base_/default_runtime.py']
-load_from = 'exp/3dnbf_pare_kp3d_accu_2dinit/epoch_80.pth'
 
 use_adversarial_train = True
 find_unused_parameters = True  # Debug
@@ -24,13 +23,13 @@ OCC_STRIDE_TEST = 10
 FIT_Z = False
 OCCLUDE_CENTER = None
 
-test_data = '3dpw_advocc'
+test_data = 'custom'
 assert test_data in ['3dpw', '3dpw_test', '3dpw_occ', '3dpw_advocc', 
                      '3dpw_advocc_grid', '3dpw_occ_varying', 
                      'h36m', 'mpi_inf_3dhp', '3doh50k', 'custom']
 
 workflow = [('train', 1)]
-phase = 'train'
+phase = 'test'
 assert phase in ['test', 'train']
 
 hparams = dict(
@@ -84,7 +83,7 @@ hparams = dict(
         RUN_MIDAS=False,
         use_gt_occ=False,
         LRS=[0.02],
-        match_gt_kp2d=True if test_data not in ['briar', 'latino'] else False,
+        match_gt_kp2d=True if test_data not in ['custom'] else False,
     ),
     VISUALIZER=dict(
         IMG_RES=512,
@@ -393,319 +392,42 @@ inference_pipeline = [
     ),
 ]
 
-if test_data == '3dpw_advocc_grid':
-    test_cfg = dict(
-        type='OccludedHumanImageDataset',
-        orig_cfg=dict(
-            type=dataset_type,
-            body_model=dict(
-                type='GenderedSMPL',
-                keypoint_src='h36m',
-                keypoint_dst='h36m',
-                model_path='data/body_models/smpl',
-                joints_regressor='data/body_models/J_regressor_h36m.npy',
-            ),
-            dataset_name='pw3d',  #'pw3d',
-            convention='smpl_49',  # h36m
-            data_prefix='data',
-            pipeline=test_pipeline_occ,
-            ann_file='pw3d_test_w_kp2d_ds30_op.npz',
-            hparams=hparams['DATASET'],
-        ),
-        occ_size=OCC_SIZE_TEST,
-        occ_stride=OCC_STRIDE_TEST,
-    )
-    vis_cfg = dict(
-        type='OccludedHumanImageDataset',
-        orig_cfg=dict(
-            type=dataset_type,
-            body_model=dict(
-                type='GenderedSMPL',
-                keypoint_src='h36m',
-                keypoint_dst='h36m',
-                model_path='data/body_models/smpl',
-                joints_regressor='data/body_models/J_regressor_h36m.npy',
-            ),
-            dataset_name='pw3d',  #'pw3d',
-            convention='smpl_49',  # h36m
-            data_prefix='data',
-            pipeline=vis_pipeline_occ,
-            ann_file='pw3d_test_w_kp2d_ds30_op.npz',
-            hparams=hparams['DATASET'],
-        ),
-        occ_size=OCC_SIZE_TEST,
-        occ_stride=OCC_STRIDE_TEST,
-    )
-elif test_data == '3dpw_advocc':
-    test_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='GenderedSMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='pw3d',
-        convention='smpl_49',
-        data_prefix='data',
-        pipeline=test_pipeline_occ,
-        ann_file='pw3d_test_w_kp2d_ds30_op_w_pareinit.npz',
-        hparams=hparams['DATASET'],
-    )
-    vis_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='GenderedSMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='pw3d',
-        convention='smpl_49',
-        data_prefix='data',
-        pipeline=vis_pipeline_occ,
-        ann_file='pw3d_test_w_kp2d_ds30_op_w_pareinit.npz',
-        hparams=hparams['DATASET'],
-    )
-elif test_data == '3dpw':
-    test_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='GenderedSMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='pw3d',
-        convention='smpl_49',
-        data_prefix='data',
-        pipeline=test_pipeline,
-        ann_file='pw3d_test_w_kp2d_ds30_op_w_pareinit.npz',
-        hparams=hparams['DATASET'],
-    )
-    vis_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='GenderedSMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='pw3d',
-        convention='smpl_49',
-        data_prefix='data',
-        pipeline=vis_pipeline,
-        ann_file='pw3d_test_w_kp2d_ds30_op_w_pareinit.npz',
-        hparams=hparams['DATASET'],
-    )
-elif test_data == '3dpw_test':
-    test_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='GenderedSMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='pw3d',
-        convention='smpl_49',
-        data_prefix='data',
-        pipeline=test_pipeline,
-        ann_file='pw3d_test_w_kp2d_correct.npz',
-        hparams=hparams['DATASET'],
-    )
-    vis_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='GenderedSMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='pw3d',
-        convention='smpl_49',
-        data_prefix='data',
-        pipeline=vis_pipeline,
-        ann_file='pw3d_test_w_kp2d_correct.npz',
-        hparams=hparams['DATASET'],
-    )
-elif test_data == '3dpw_occ':
-    test_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='GenderedSMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='pw3d',
-        convention='smpl_49',
-        data_prefix='data',
-        pipeline=test_pipeline,
-        ann_file='pw3d_occ_w_kp2d_ds30_correct.npz',
-        hparams=hparams['DATASET'],
-    )
-    vis_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='GenderedSMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='pw3d',
-        convention='smpl_49',
-        data_prefix='data',
-        pipeline=vis_pipeline,
-        ann_file='pw3d_occ_w_kp2d_ds30_correct.npz',
-        hparams=hparams['DATASET'],
-    )
-elif test_data == 'h36m':
-    test_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='GenderedSMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='h36m',
-        convention='h36m',
-        data_prefix='data',
-        pipeline=test_pipeline,
-        ann_file='h36m_valid_protocol2.npz',
-        hparams=hparams['DATASET'],
-    )
-elif test_data == 'mpi_inf_3dhp':
-    test_cfg = dict(
-        type=dataset_type,
-        body_model=body_model,
-        dataset_name='mpi_inf_3dhp',
-        data_prefix='data',
-        pipeline=test_pipeline,
-        convention='h36m',
-        ann_file='mpi_inf_3dhp_test_op.npz',
-        hparams=hparams['DATASET'],
-    )
-elif test_data == '3doh50k':
-    test_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='SMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='3doh50k',
-        convention='smpl_49',  #'h36m',
-        data_prefix='data',
-        pipeline=test_pipeline,
-        ann_file='3doh_test_w_kp2d_rendered_op_w_pareinit.npz',
-        hparams=hparams['DATASET'],
-    )
-    vis_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='SMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='3doh50k',
-        convention='smpl_49',  #'h36m',
-        data_prefix='data',
-        pipeline=vis_pipeline,
-        ann_file='3doh_test_w_kp2d_rendered_op_w_pareinit.npz',
-        hparams=hparams['DATASET'],
-    )
-elif test_data == '3dpw_occ_varying':
-    test_cfg = dict(
-        type='OcclusionVaryingHumanImageDataset',
-        orig_cfg=dict(
-            type=dataset_type,
-            body_model=dict(
-                type='GenderedSMPL',
-                keypoint_src='h36m',
-                keypoint_dst='h36m',
-                model_path='data/body_models/smpl',
-                joints_regressor='data/body_models/J_regressor_h36m.npy',
-            ),
-            dataset_name='pw3d',
-            convention='smpl_49',
-            data_prefix='data',
-            pipeline=test_pipeline_occ,
-            ann_file='pw3d_test_w_kp2d_ds30_op_w_pareinit.npz',
-            hparams=hparams['DATASET'],
-        ),
-        occ_levels=list(range(0, 160, 5)),
-    )
-    vis_cfg = dict(
-        type='OcclusionVaryingHumanImageDataset',
-        orig_cfg=dict(
-            type=dataset_type,
-            body_model=dict(
-                type='GenderedSMPL',
-                keypoint_src='h36m',
-                keypoint_dst='h36m',
-                model_path='data/body_models/smpl',
-                joints_regressor='data/body_models/J_regressor_h36m.npy',
-            ),
-            dataset_name='pw3d',
-            convention='smpl_49',
-            data_prefix='data',
-            pipeline=vis_pipeline_occ,
-            ann_file='pw3d_test_w_kp2d_ds30_op_w_pareinit.npz',
-            hparams=hparams['DATASET'],
-        ),
-        occ_levels=list(range(0, 160, 5)),
-    )
-elif test_data == 'custom':
-    test_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='GenderedSMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='yi_test',
-        convention='smpl_49',
-        data_prefix='data',
-        pipeline=test_pipeline,
-        ann_file='yi_test_dataset.npz',
-        hparams=hparams['DATASET'],
-    )
-    vis_cfg = dict(
-        type=dataset_type,
-        body_model=dict(
-            type='GenderedSMPL',
-            keypoint_src='h36m',
-            keypoint_dst='h36m',
-            model_path='data/body_models/smpl',
-            joints_regressor='data/body_models/J_regressor_h36m.npy',
-        ),
-        dataset_name='yi_test',
-        convention='smpl_49',
-        data_prefix='data',
-        pipeline=vis_pipeline,
-        ann_file='yi_test_dataset.npz',
-        hparams=hparams['DATASET'],
-    )
+
+test_cfg = dict(
+    type=dataset_type,
+    body_model=dict(
+        type='GenderedSMPL',
+        keypoint_src='h36m',
+        keypoint_dst='h36m',
+        model_path='data/body_models/smpl',
+        joints_regressor='data/body_models/J_regressor_h36m.npy',
+    ),
+    dataset_name='demo',
+    convention='smpl_49',
+    data_prefix='data',
+    pipeline=test_pipeline,
+    ann_file='demo_dataset.npz',
+    hparams=hparams['DATASET'],
+)
+vis_cfg = dict(
+    type=dataset_type,
+    body_model=dict(
+        type='GenderedSMPL',
+        keypoint_src='h36m',
+        keypoint_dst='h36m',
+        model_path='data/body_models/smpl',
+        joints_regressor='data/body_models/J_regressor_h36m.npy',
+    ),
+    dataset_name='demo',
+    convention='smpl_49',
+    data_prefix='data',
+    pipeline=vis_pipeline,
+    ann_file='demo_dataset.npz',
+    hparams=hparams['DATASET'],
+)
 
 data = dict(
-    samples_per_gpu=12 if phase == 'train' else 8,
+    samples_per_gpu=8, 
     workers_per_gpu=2,
     train=dict(
         type='MixedDataset',

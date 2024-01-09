@@ -165,7 +165,8 @@ class HumanImageDataset(BaseDataset, metaclass=ABCMeta):
 
         self.occ_info = (
             json.load(open(self.hparams.occ_info_file))
-            if self.hparams.get('occ_info_file', None)
+            if (self.hparams.get('occ_info_file', None) is not None) and \
+                (self.hparams.get('occ_info_file', None) != 'None')
             else None
         )
 

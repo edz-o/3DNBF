@@ -8,11 +8,13 @@ import cv2
 from mmhuman3d.data.data_structures.human_data import HumanData
 from glob import glob
 
-name = 'your_folder'
+name = 'demo'
 root = f"data/datasets/{name}" # path of demo image dataset
 
-
-imgs = sorted(glob(osp.join(root, "*.png")))
+fmts = ['*.jpg', '*.png', '*.jpeg']
+imgs = []
+for fmt in fmts:
+    imgs.extend(sorted(glob(osp.join(root, fmt))))
 
 human_data = HumanData()
 

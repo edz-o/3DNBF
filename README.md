@@ -45,7 +45,8 @@ Please refer to [install.md](./docs/install.md) for installation.
 
 ### Fetch Data
 
-Download [data](https://livejohnshopkins-my.sharepoint.com/:u:/g/personal/yzhan286_jh_edu/EfdBj5u9u_lPiVSQzcBhHdwBRsDyjk1xET5hFYKTGzOf5w?e=DRecfS) and unzip to `$ROOT`.
+Download [data](https://livejohnshopkins-my.sharepoint.com/:u:/g/personal/yzhan286_jh_edu/EfdBj5u9u_lPiVSQzcBhHdwBRsDyjk1xET5hFYKTGzOf5w?e=DRecfS) and unzip to `$ROOT`. 
+This includes pretrained models, preprocessed and other necessary files.
 
 ### Body Model Preparation
 
@@ -210,9 +211,17 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 bash tools/dist_train.sh configs/3dnbf/resnet50_par
 
 ### Cropped Image Dataset
 
-Place images in a folder and run `tools/create_test_dataset.py`.
+Place center cropped human images in `data/datasets/demo` and run `tools/create_test_dataset.py` to create dataset files which will be stored in `data/preprocessed_datasets`.
 
-Use the following script to run 3DNBF. In the config file, change `data.test.dataset_name` and `data.test.ann_file` accordingly. Results will be saved to `$WORK_DIR/result_keypoints.json`.
+Use the following script to run 3DNBF. In the config file, set `data.test.dataset_name` and `data.test.ann_file` accordingly. Results will be saved to `$WORK_DIR/result_keypoints.json`. 
+You can run visualization afterwards.
 ```shell
-CUDA_VISIBLE_DEVICES=0 python tools/test.py configs/3dnbf/resnet50_pare_w_coke_pw3d_step2.py --work-dir WORK_DIR CHECKPOINT --skip_eval
+CUDA_VISIBLE_DEVICES=0 python tools/test.py --config configs/3dnbf/resnet50_pare_w_coke_pw3d_demo.py --work-dir WORK_DIR --checkpoint CHECKPOINT --skip_eval
+```
+
+Example run of our demo:
+```shell
+python tools/create_test_dataset.py
+CUDA_VISIBLE_DEVICES=0 python tools/test.py --config configs/3dnbf/resnet50_pare_w_coke_pw3d_demo.py --work-dir output --checkpoint data//pretrained/3dnbf_r50.pth --skip_eval
+CUDA_VISIBLE_DEVICES=0 python tools/visualize_predictions.py --config configs/3dnbf/resnet50_pare_w_coke_pw3d_demo.py --output_file output/result_keypoints.json --outdir output/visualization
 ```
