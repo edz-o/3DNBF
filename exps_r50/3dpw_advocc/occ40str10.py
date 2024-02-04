@@ -12,7 +12,7 @@ phase = "test"
 assert phase in ['test', 'train']
 OCC_SIZE_TEST = 40
 OCC_STRIDE_TEST = 10
-OCC_INFO_FILE = "exps_r50/3dpw_advocc_grid/occ80str10_grid/result_occ_info_mpjpe.json"
+OCC_INFO_FILE = "exps_r50/3dpw_advocc_grid/occ40str10_grid/result_occ_info_mpjpe.json"
 PRED_INITIALIZATION = None
 OPT_LR = 0.02
 N_ORIENT = 3
@@ -71,7 +71,7 @@ hparams = dict(
         theta=10,
         FOCAL_LENGTH=5000.0,
         IMG_RES=img_res,
-        disable_occ=True,
+        disable_occ=False,
         show_debug_info=False,
         thr_detected_joints=7,
         thr_openpose_conf=0.2,
